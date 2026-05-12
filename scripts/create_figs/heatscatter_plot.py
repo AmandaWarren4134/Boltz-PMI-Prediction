@@ -25,6 +25,7 @@ def load_csv_data(csv_file: str):
     data = pd.read_csv(csv_file_path)
     return data
 
+
 def create_heat_scatter_plot(data: pd.DataFrame, ligand_name_1: str, ligand_name_2: str, affinity_col: str, regression_line=False, xy_line=False):
     
     if regression_line and xy_line:
@@ -41,26 +42,26 @@ def create_heat_scatter_plot(data: pd.DataFrame, ligand_name_1: str, ligand_name
     fig, ax = plt.subplots(figsize=(8, 6))
 
     data.pyroplot.heatscatter(s=10, ax=ax)
-
-    # sns.scatterplot(x=x, y=y, alpha=0.6, c=density)
-    # sns.jointplot(x=x, y=y, kind="hex", cmap='viridis')
-    # ax.set_xlabel(f"{ligand_name_1} Predicted Affinity (µM)")
-    # ax.set_ylabel(f"{ligand_name_2} Predicted Affinity (µM)")
     
     ax.set_xlabel(f"C16 Predicted Affinity (-log10(M))")
     ax.set_ylabel(f"C16 Dihydro Predicted Affinity (-log10(M))")
     ax.grid(True)
-    # ax.tight_layout()
 
     if xy_line:
         # Add X = Y line for reference
         min_val = min(x.min(), y.min())
         max_val = max(x.max(), y.max())
-        ax.plot([min_val, max_val], [min_val, max_val], color='blue',
-                    linestyle='solid', label='X = Y')
+        line,  = ax.plot([min_val, max_val], [min_val, max_val], 
+                         color='blue', linestyle='solid', label='X = Y')
         
-        ax.legend(loc="upper left", frameon=True, bbox_to_anchor=(0.02, 0.98))
-        ax.set_title("Heat Scatter Plot of Predicted Affinities")
+        t_stat, p_val = perform_paired_t_test(x, y)
+        t_text = f"t = {t_stat:.3f}"
+        p_text = f"p = {p_val:.3f}"
+
+        stat_label = Line2D([], [], color='none', label=f"{t_text}, {p_text}")
+
+        ax.legend(handles=[line], loc="upper left", frameon=True, bbox_to_anchor=(0.02, 0.98))
+        ax.set_title("Comparison of Ceramide Predicted Affinities")
         plot_title = f"xy_line_heat_scatter_{ligand_name_1}_vs_{ligand_name_2}.png"
         
     if regression_line:
@@ -69,7 +70,9 @@ def create_heat_scatter_plot(data: pd.DataFrame, ligand_name_1: str, ligand_name
         b = intercept
         r2 = r_value ** 2
 
-        x_line = np.linspace(x.min(), x.max(), 300)
+        min_val = min(x.min(), y.min())
+        max_val = max(x.max(), y.max())
+        x_line = np.linspace(min_val, max_val, 1000)
         y_line = m * x_line + b
 
         fit_line, = ax.plot(x_line, y_line, color='red', 
@@ -89,10 +92,17 @@ def create_heat_scatter_plot(data: pd.DataFrame, ligand_name_1: str, ligand_name
     print(f"Heat scatter plot saved to: {plot_title}")
     plt.show()
 
+
+def perform_paired_t_test(x, y):
+    t_statistic, p_value = stats.ttest_rel(x, y)
+    return t_statistic, p_value
+
+
 def linear_regression(x, y):
     slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
     
     return slope, intercept, r_value, p_value, std_err
+
 
 def main():
     # This script makes a heat scatter plot showing the affinity predictions for two different

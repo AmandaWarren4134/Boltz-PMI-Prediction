@@ -71,7 +71,7 @@ def plot_top_enrichment(results, outdir, p, title, ligand=None, top_n=15, x_col=
 
     results_sorted = results_sorted.sort_values(x_col, ascending=False).head(top_n)
 
-    plt.figure(figsize=(14, 6))
+    plt.figure(figsize=(10, 6))
     sns.barplot(
         data=results_sorted,
         y="Term",
