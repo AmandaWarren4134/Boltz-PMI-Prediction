@@ -105,7 +105,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--output_folder", type=str, nargs="+", help="Name(s) of the output folder(s) to process. If not provided, --process_all will be used")
     ap.add_argument("--job_name", type=str, help="Name for the output CSV")
-    ap.add_argument("--process_all", action="store_true", default=True, help="Process all output folders in the outputs directory")
+    ap.add_argument("--process_all", action="store_true", help="Process all output folders in the outputs directory")
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
     

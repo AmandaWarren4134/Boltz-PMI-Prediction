@@ -33,20 +33,80 @@ def read_proteins_from_source(file_name: str):
     return proteins
 
 
-def create_violin_plot(data: pd.DataFrame, plot_name: str, plot_title: str, statistical_note: str = ""):
+def create_violin_plot(
+    data: pd.DataFrame, 
+    plot_name: str, 
+    plot_title: str, 
+    statistical_note: str = "",
+    highlight_point: str = None 
+):
     affinity_field = "neg_log_molar_affinity_pred_value"
 
     plt.figure(figsize=(10, 6))
-    sns.violinplot(data=data, x="ligand_category", y=affinity_field, palette="Set2", density_norm="count")
+    ax = sns.violinplot(
+        data=data, 
+        x="ligand_category", 
+        y=affinity_field, 
+        palette="Set2", 
+        density_norm="count"
+    )
+
+    # Highlight positive control
+    if highlight_point is not None:
+        # Show all proteins faintly
+        sns.stripplot(
+            data=data,
+            x="ligand_category",
+            y=affinity_field,
+            color="black",
+            alpha=0.35,
+            size=4,
+            jitter=True
+        )
+
+        other_data = data[data["protein"] == highlight_point]
+
+        sns.stripplot(
+            data=other_data,
+            x="ligand_category",
+            y=affinity_field,
+            color="red",
+            size=12,
+            jitter=False,
+            marker="D",
+            edgecolor="black",
+            linewidth=1.5,
+            zorder=10
+        )
+
+        for _, row in other_data.iterrows():
+            x_categories = list(data["ligand_category"].unique())
+            x_pos = x_categories.index(row["ligand_category"])
+
+            affinity_value = row[affinity_field]
+            label = f"DES1\n{affinity_value:.2f}"
+            ax.text(
+                x_pos + 0.05,
+                affinity_value,
+                label,
+                color="red",
+                fontsize=10,
+                weight="bold"
+            )
+
     plt.title(plot_title)
-    plt.xlabel("Protein Category")
+    plt.xlabel("Ligand Category")
     plt.ylabel("Predicted Affinity (-log10 M)")
     
     if statistical_note:
-        plt.text(0.05, 0.95, statistical_note, 
-                 transform=plt.gca().transAxes, 
-                 verticalalignment='top', 
-                 bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+        # 0.65 for top right corner, 0.05 for top left corner
+        plt.text(
+            0.05, 
+            0.95, 
+            statistical_note, 
+            transform=plt.gca().transAxes, 
+            verticalalignment='top', 
+            bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
 
     plot_file_path = PLOT_DIR / plot_name
     plt.savefig(plot_file_path, bbox_inches='tight')
@@ -67,6 +127,7 @@ def main():
     ap.add_argument("--ligand_names", type=str, nargs=2, 
                     default=["c16", "c16_dihydro"])
     ap.add_argument("--title", type=str, default="C16 and C16 Dihydro Affinity Predictions for PISA Proteins")
+    ap.add_argument("--highlight", type=str, default=None, help="Point to highlight as a positive control (DES1)")
     ap.add_argument("--out_filename", type=str, default="pisa_c16_c16dihydro")
     args = ap.parse_args()
 
@@ -74,6 +135,7 @@ def main():
     ligand_name_1, ligand_name_2 = args.ligand_names
     outfile = args.out_filename
     title = args.title
+    highlight = args.highlight
 
     clean_ligand_name_1 = ligand_name_1.replace("_", " ").title()
     clean_ligand_name_2 = ligand_name_2.replace("_", " ").title()
@@ -91,8 +153,6 @@ def main():
     data_2 = data_2.assign(ligand_category=clean_ligand_name_2)
 
     paired_data = pd.merge(data_1, data_2, on="protein", suffixes=(f"_{clean_ligand_name_1}", f"_{clean_ligand_name_2}"))
-    
-    paired_data = paired_data.drop("protein", axis=1)
 
     aff_1 = paired_data[f"{affinity_col}_{clean_ligand_name_1}"]
     aff_2 = paired_data[f"{affinity_col}_{clean_ligand_name_2}"]
@@ -115,7 +175,7 @@ def main():
     plot_name = f"{outfile}_violinplot.png"
     plot_title = title.lower().replace(" ", "_")
 
-    create_violin_plot(merged_data, plot_name, title, statistical_note)
+    create_violin_plot(merged_data, plot_name, title, statistical_note, highlight)
 
 
 if __name__ == "__main__":

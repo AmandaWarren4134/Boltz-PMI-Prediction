@@ -1,0 +1,4 @@
+/scratch/rai/vast1/stewartp/yaml/des1_proteins/O09005__CER_d18_0_16_0_C16.yaml
+/scratch/rai/vast1/stewartp/yaml/des1_proteins/O09005__CER_d18_1_16_0_C16.yaml
+/scratch/rai/vast1/stewartp/yaml/des1_proteins/O15121__CER_d18_0_16_0_C16.yaml
+/scratch/rai/vast1/stewartp/yaml/des1_proteins/O15121__CER_d18_1_16_0_C16.yaml

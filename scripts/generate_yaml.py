@@ -92,7 +92,7 @@ def main():
     )
     ap.add_argument(
         "--out_base_dir", type=Path, default=Path("boltz_ready"),
-        help="Where to write boltz_ready/<run_name> (default: ./boltz_ready)",
+        help="Where to write /<run_name> (default: ./boltz_ready)",
     )
     ap.add_argument(
         "--require_msa", action="store_true",
@@ -107,7 +107,7 @@ def main():
 
     args = ap.parse_args()
 
-    base_output = Path(__file__).parent / "output_files"
+    base_output = Path(__file__).parent / "../inputs"
 
     proteome_csv = args.proteome_csv
     ceramides_csv = args.ceramide_csv
