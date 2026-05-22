@@ -63,7 +63,8 @@ else
     boltz predict "$YAML_FILE" \
         --use_msa_server \
         --msa_server_url=http://colabfold02.int.chpc.utah.edu:8088 \
-        --num_workers 4 \
+        --max_msa_seqs 256 \
+        --num_workers 0 \
         --out_dir "$OUTPUT_DIR"
 
     echo ""

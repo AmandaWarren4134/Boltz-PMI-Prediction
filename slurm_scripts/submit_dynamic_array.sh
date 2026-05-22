@@ -69,15 +69,15 @@ fi
 
 sbatch \
     --job-name=$JOB_NAME \
-    --time=01:30:00 \
-    --cpus-per-task=4 \
+    --time=00:30:00 \
+    --cpus-per-task=1 \
     --gres=gpu:h200:1 \
-    --mem=256G \
+    --mem=64G \
     --cluster=granite \
     --partition=rai-gpu-grn \
     --qos=rai-gpu-grn \
     --account=rai \
-    --mail-user=mander19@byu.edu \
+    --mail-user=aw998@byu.edu \
     --mail-type=BEGIN,END,FAIL \
     --array=0-$MAX_INDEX%10 \
     --export=ALL,YAML_LIST="$YAML_LIST",OUTPUT_DIR="$OUTPUT_LOC",YAML_PER_JOB="$YAML_PER_JOB",NUM_YAML="$NUM_YAML" \
