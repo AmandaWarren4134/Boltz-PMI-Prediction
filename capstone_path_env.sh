@@ -12,7 +12,7 @@ export PROJECT_ROOT="/uufs/chpc.utah.edu/common/home/u6073680/Capstone/BIO-465-C
 # SCRATCH_ROOT is the location for outputs. If not
 # using the University of Utah HPC, this can be set
 # to the PROJECT_ROOT or another local directory
-export SCRATCH_ROOT="/scratch/rai/vast1/stewartp"
+export SCRATCH_ROOT="/scratch/rai/vast1/stewartp/boltz_project"
 
 export SLURM_SCRIPT_DIR="$PROJECT_ROOT/slurm_scripts"
 export SCRIPT_DIR="$PROJECT_ROOT/scripts"

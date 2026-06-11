@@ -4,11 +4,12 @@ module load boltz2
 
 JOB_NAME="${1}"
 YAML_PER_JOB="${2:-1}"
+MAX_ARRAY_SIZE=1000
 
 # Ensure environment variables are loaded
 # Modify the path below to target 
 # the environment file
-ENV_FILE="/uufs/chpc.utah.edu/common/home/u6073680/Capstone/BIO-465-Capstone-Projectcapstone_path_env.sh"
+ENV_FILE="/uufs/chpc.utah.edu/common/home/u6073678/Capstone/BIO-465-Capstone-Project/capstone_path_env.sh"
 if [ -f "$ENV_FILE" ]; then
     . "$ENV_FILE"
 fi
@@ -26,7 +27,7 @@ OUTPUT_LOC="$OUTPUT_DIR/$JOB_NAME"
 YAML_LOC="$YAML_DIR/$JOB_NAME"
 LOG_LOC="$LOG_DIR/boltz_array_$JOB_NAME"
 
-# Make directories
+# Make directoriesf YAML_LIST
 mkdir -p "$OUTPUT_LOC" "$LOG_LOC" "$YAML_LIST_DIR"
 
 # Generate YAML list file
@@ -46,13 +47,18 @@ if [ "$NUM_YAML" -eq 0 ]; then
 fi
 
 # Use batching if there are more than 1000 YAML files
-if [ "$NUM_YAML" -gt 1000 ] && [ "$YAML_PER_JOB" -eq 1 ]; then
-    echo "Warning: Found $NUM_YAML YAML files in $JOB_NAME. Batching will be used."
+TASKS_NEEDED=$(( (NUM_YAML + YAML_PER_JOB - 1) / YAML_PER_JOB ))
 
-    # Use smallest YAML_PER_JOB which 
-    # keeps the array size at/below 1000
-    YAML_PER_JOB=$(( (NUM_YAML + 999) / 1000 ))
-    echo "Setting YAML_PER_JOB to $YAML_PER_JOB."
+if [ "$TASKS_NEEDED" -gt "$MAX_ARRAY_SIZE" ]; then
+    OLD_YAML_PER_JOB=$YAML_PER_JOB
+
+    YAML_PER_JOB=$(( (NUM_YAML + MAX_ARRAY_SIZE - 1) / MAX_ARRAY_SIZE ))
+
+    TASKS_NEEDED=$(( (NUM_YAML + YAML_PER_JOB - 1) / YAML_PER_JOB ))
+
+    echo "Warning: Requested configuration would create $TASKS_NEEDED array tasks."
+    echo "Cluster limit is $MAX_ARRAY_SIZE."
+    echo "Increasing YAML_PER_JOB from $OLD_YAML_PER_JOB to $YAML_PER_JOB."
 fi
 
 echo "Found $NUM_YAML YAML files in $YAML_LOC"
@@ -67,8 +73,9 @@ else
     MAX_INDEX=$((TASKS_NEEDED - 1))
 fi
 
-sbatch \
-    --job-name=$JOB_NAME \
+# Submit job array and capture output
+SBATCH_OUTPUT=$(sbatch \
+    --job-name="$JOB_NAME" \
     --time=00:30:00 \
     --cpus-per-task=1 \
     --gres=gpu:h200:1 \
@@ -79,10 +86,33 @@ sbatch \
     --account=rai \
     --mail-user=aw998@byu.edu \
     --mail-type=BEGIN,END,FAIL \
-    --array=0-$MAX_INDEX%10 \
+    --array=0-"$MAX_INDEX"%10 \
     --export=ALL,YAML_LIST="$YAML_LIST",OUTPUT_DIR="$OUTPUT_LOC",YAML_PER_JOB="$YAML_PER_JOB",NUM_YAML="$NUM_YAML" \
     --output="$LOG_LOC/task_%A_%a.log" \
     --error="$LOG_LOC/task_%A_%a.log" \
-    "$SLURM_SCRIPT_DIR/dynamic_array_worker.sh"
+    "$SLURM_SCRIPT_DIR/dynamic_array_worker.sh" 2>&1)
 
-echo "Submitted a total of $((MAX_INDEX + 1)) jobs with $NUM_YAML YAML files, $YAML_PER_JOB per job, for $JOB_NAME."
+SBATCH_EXIT_CODE=$?
+
+if [ $SBATCH_EXIT_CODE -eq 0 ]; then
+    JOB_ID=$(echo "$SBATCH_OUTPUT" | awk '{print $NF}')
+
+    echo ""
+    echo "========================================"
+    echo "Submission successful"
+    echo "Job ID: $JOB_ID"
+    echo "Job Name: $JOB_NAME"
+    echo "Total YAML files: $NUM_YAML"
+    echo "YAMLs per task: $YAML_PER_JOB"
+    echo "Array tasks: $((MAX_INDEX + 1))"
+    echo "Max concurrent tasks: 10"
+    echo "Logs: $LOG_LOC"
+    echo "========================================"
+else
+    echo ""
+    echo "========================================"
+    echo "ERROR: Job submission failed"
+    echo "$SBATCH_OUTPUT"
+    echo "========================================"
+    exit 1
+fi

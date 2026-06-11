@@ -23,12 +23,15 @@ if [ "$YAML_PER_JOB" -gt 1 ]; then
     echo "----------------------------------------"
     echo "Running task $SLURM_ARRAY_TASK_ID on $(hostname)"
     echo "Processing the following YAML files: $((yaml_index_start + 1)) through $((yaml_index_end + 1))"
-    echo "Progress: $((yaml_index_end * job_id + 1)) / $NUM_YAML"
+    echo "Progress: $((yaml_index_start + 1))-$((yaml_index_end + 1)) / $NUM_YAML"
     echo "----------------------------------------"
 
     # Loop through YAML files
+    mapfile -t YAMLS < "$YAML_LIST"
+
     for ((i = yaml_index_start; i <= yaml_index_end; i++)); do
-        YAML_FILE=$(sed -n "$((i + 1))p" "$YAML_LIST")
+        #YAML_FILE=$(sed -n "$((i + 1))p" "$YAML_LIST")
+        YAML_FILE="${YAMLS[$i]}"
         echo "Processing YAML: $YAML_FILE"
 
         boltz predict "$YAML_FILE" \
@@ -50,7 +53,9 @@ else
     echo "YAML_PER_JOB is set to 1. Each job will process a single YAML file."
     
     # Pick YAML for this task
-    YAML_FILE=$(sed -n "$((SLURM_ARRAY_TASK_ID + 1))p" "$YAML_LIST")
+    #YAML_FILE=$(sed -n "$((SLURM_ARRAY_TASK_ID + 1))p" "$YAML_LIST")
+    mapfile -t YAMLS < "$YAML_LIST"
+    YAML_FILE="${YAMLS[$SLURM_ARRAY_TASK_ID]}"
     JOB_NAME=${YAML_FILE:-"boltz_job"}
 
     echo "----------------------------------------"
