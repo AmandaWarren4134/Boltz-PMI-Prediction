@@ -1,10 +1,8 @@
 logs
 *.log
-outputs
 prep_files/output_files
 prep_files/boltz_ready
 prep_files/proteome_chunks
-input_files
 processed_data
 figs_and_images
 plots
@@ -22,7 +20,11 @@ outputs
 prep_files/output_files
 prep_files/boltz_ready
 prep_files/proteome_chunks
-inputs/
+inputs/*
+!inputs/proteins
+!inputs/ligands
+inputs/ligands/*
+!inputs/ligands/example_ligands.csv
 processed_data
 figs_and_images
 plots
@@ -37,3 +39,5 @@ Capstone_TA_Files
 yaml_files
 *.yaml
 slurm_scripts/yaml_lists
+slurm_scripts/archive
+my_environment_variables.sh

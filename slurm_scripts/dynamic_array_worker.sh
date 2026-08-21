@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=boltz_worker
-#SBATCH --mail-user=aw998@byu.edu
+#SBATCH --mail-user=#YOUR EMAIL HERE
 #SBATCH --mail-type=BEGIN,END,FAIL
 
 set -euo pipefail

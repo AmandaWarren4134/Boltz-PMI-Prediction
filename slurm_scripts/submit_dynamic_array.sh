@@ -76,15 +76,15 @@ fi
 # Submit job array and capture output
 SBATCH_OUTPUT=$(sbatch \
     --job-name="$JOB_NAME" \
-    --time=00:30:00 \
+    --time=00:60:00 \
     --cpus-per-task=1 \
     --gres=gpu:h200:1 \
-    --mem=64G \
+    --mem=16G \
     --cluster=granite \
     --partition=rai-gpu-grn \
     --qos=rai-gpu-grn \
     --account=rai \
-    --mail-user=aw998@byu.edu \
+    --mail-user=#YOUR EMAIL HERE \
     --mail-type=BEGIN,END,FAIL \
     --array=0-"$MAX_INDEX"%10 \
     --export=ALL,YAML_LIST="$YAML_LIST",OUTPUT_DIR="$OUTPUT_LOC",YAML_PER_JOB="$YAML_PER_JOB",NUM_YAML="$NUM_YAML" \

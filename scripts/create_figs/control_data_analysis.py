@@ -10,6 +10,16 @@ from matplotlib.lines import Line2D
 
 from generate_plots import make_plot_folder
 
+plt.rcParams.update({
+    'font.family': 'Arial',
+    'font.size': 16,
+    'axes.labelsize': 16,
+    'xtick.labelsize': 16,
+    'ytick.labelsize': 16,
+    'legend.fontsize': 18,
+    'figure.dpi':300,
+})
+
 OUTPUT_DIR = Path(os.environ["OUTPUT_DIR"])
 SOURCE_DIR = Path(os.environ["SOURCE_DIR"])
 PROCESSED_DIR = Path(os.environ["PROCESSED_DIR"])
@@ -72,7 +82,7 @@ def scatter_plot_experimental_vs_predicted(data, output_file, log_scale=False):
     plt.legend()
     plt.xlabel("Experimental Affinity (µM)")
     plt.ylabel("Predicted Affinity (µM)")
-    plt.savefig(output_file)
+    plt.savefig(output_file.with_suffix('.svg'))
     plt.close()
 
 
@@ -82,7 +92,10 @@ def heat_scatter_plot_experimental_vs_predicted(data, output_file):
     
     plot_data = data[[experimental_affinity_field, predicted_affinity_field]]
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig = plt.figure(figsize=(7, 7))
+
+    # Main plot position: [left, bottom, width, height]
+    ax = fig.add_axes([0.15, 0.15, 0.80, 0.75])
 
     plot_data.pyroplot.heatscatter(s=10, ax=ax)
 
@@ -106,7 +119,7 @@ def heat_scatter_plot_experimental_vs_predicted(data, output_file):
             label=f"Linear regression"
             )
 
-    r2_text = f"$R^2$ = {r2:.3f}"
+    r2_text = f"$R^2$ = {r2:.3f}\nn = 1549"
     r2_label = Line2D([], [], color='none', label=r2_text)
 
     # ax.text(
@@ -119,11 +132,13 @@ def heat_scatter_plot_experimental_vs_predicted(data, output_file):
     #     bbox=dict(boxstyle="round", facecolor="white", alpha=0.8, edgecolor="none")
     # )
 
-    plt.title("Heat Scatter Plot of Predicted vs Experimental Affinities")
+    #plt.title("Heat Scatter Plot of Predicted vs Experimental Affinities")
     ax.legend(handles=[fit_line, r2_label], loc="upper left", frameon=True, bbox_to_anchor=(0.02, 0.98))
-    fig.tight_layout()
-    plt.grid(True)
-    plt.savefig(output_file, dpi=600)
+    ax.grid(True, linestyle='--', linewidth=0.5, color='0.85', alpha=0.7, zorder=0)
+    ax.set_axisbelow(True)  # ensures grid stays behind the data points
+    bbox=ax.get_position()
+    print(bbox.x0, bbox.y0, bbox.width, bbox.height)
+    plt.savefig(output_file.with_suffix('.svg'), bbox_inches=None)
     plt.close()
 
 

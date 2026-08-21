@@ -9,6 +9,17 @@ from pathlib import Path
 from pyrolite.plot import pyroplot
 from matplotlib.lines import Line2D
 
+plt.rcParams.update({
+    'font.family': 'Arial',
+    'font.size': 16,
+    'axes.labelsize': 16,
+    'xtick.labelsize': 16,
+    'ytick.labelsize': 16,
+    'legend.fontsize': 18,
+    'figure.dpi': 300,
+})
+
+
 # PROJECT_ROOT = Path(os.environ["PROJECT_ROOT"])
 # SCRIPT_DIR = Path(os.environ["SCRIPT_DIR"])
 # YAML_DIR = Path(os.environ["YAML_DIR"])
@@ -39,13 +50,15 @@ def create_heat_scatter_plot(data: pd.DataFrame, ligand_name_1: str, ligand_name
 
     data = data[[x_col, y_col]]
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(7, 7))
+    plt.subplots_adjust(left=0.15, right=0.95, top=0.90, bottom=0.15)
 
     data.pyroplot.heatscatter(s=10, ax=ax)
     
     ax.set_xlabel(f"C16 Predicted Affinity (-log10(M))")
-    ax.set_ylabel(f"C16 Dihydro Predicted Affinity (-log10(M))")
-    ax.grid(True)
+    ax.set_ylabel(f"C2 Predicted Affinity (-log10(M))")
+    ax.grid(True, linestyle='--', linewidth=0.5, color='0.85', alpha=0.7, zorder=0)
+    ax.set_axisbelow(True)  # ensures grid stays behind the data points
 
     if xy_line:
         # Add X = Y line for reference
@@ -56,13 +69,25 @@ def create_heat_scatter_plot(data: pd.DataFrame, ligand_name_1: str, ligand_name
         
         t_stat, p_val = perform_paired_t_test(x, y)
         t_text = f"t = {t_stat:.3f}"
-        p_text = f"p = {p_val:.3f}"
 
+        if p_val < 0.0001:
+            p_text = "$p < 0.0001$"
+        else:
+            p_text = f"$p = {p_val:.3f}$"
         stat_label = Line2D([], [], color='none', label=f"{t_text}, {p_text}")
 
+        ax.text(
+            0.05, 0.85,
+            f"Paired $t$-test\n{p_text}",
+            transform=ax.transAxes,
+            ha="left",
+            va="top",
+            fontsize=16,
+            bbox=dict(facecolor='white', edgecolor='none', alpha=0.8, pad=0.3)
+        )
         ax.legend(handles=[line], loc="upper left", frameon=True, bbox_to_anchor=(0.02, 0.98))
-        ax.set_title("Comparison of Ceramide Predicted Affinities")
-        plot_title = f"xy_line_heat_scatter_{ligand_name_1}_vs_{ligand_name_2}.png"
+        #ax.set_title("Comparison of Ceramide Predicted Affinities")
+        plot_title = f"xy_line_heat_scatter_with_p_val_{ligand_name_1}_vs_{ligand_name_2}.svg"
         
     if regression_line:
         slope, intercept, r_value, p_value, std_err = linear_regression(x, y)
@@ -84,12 +109,13 @@ def create_heat_scatter_plot(data: pd.DataFrame, ligand_name_1: str, ligand_name
 
         ax.legend(handles=[fit_line, r2_label], loc="upper left", frameon=True, bbox_to_anchor=(0.02, 0.98))
         ax.set_title("Regression of Ceramide Predicted Affinities")
-        plot_title = f"regress_heat_scatter_{ligand_name_1}_vs_{ligand_name_2}.png"
+        plot_title = f"regress_heat_scatter_{ligand_name_1}_vs_{ligand_name_2}.svg"
 
-    fig.tight_layout()
     plot_file_path = PLOT_DIR / plot_title
-    plt.savefig(plot_file_path, bbox_inches='tight', dpi=600)
+    plt.savefig(plot_file_path.with_suffix('.svg'))
     print(f"Heat scatter plot saved to: {plot_title}")
+    bbox=ax.get_position()
+    print(bbox.x0, bbox.y0, bbox.width, bbox.height)
     plt.show()
 
 
@@ -115,7 +141,7 @@ def main():
     
     ap = argparse.ArgumentParser()
     ap.add_argument("--csvs", type=str, nargs=2, 
-                    default=["confidence_predictions_random_plus_paul_c16.csv", "confidence_predictions_random_plus_paul_c16dihydro.csv"])
+                    default=["split_predictions/confidence_predictions_random_c16.csv", "split_predictions/confidence_predictions_random_c16dihydro.csv"])
     ap.add_argument("--ligand_names", type=str, nargs=2, 
                     default=["c16", "c16_dihydro"])
     args = ap.parse_args()
@@ -138,7 +164,7 @@ def main():
     merged_data = pd.merge(data_1, data_2, on="protein")
     merged_data = merged_data.drop("protein", axis=1)
 
-    create_heat_scatter_plot(merged_data, ligand_name_1, ligand_name_2, affinity_col, regression_line=True)
+    #create_heat_scatter_plot(merged_data, ligand_name_1, ligand_name_2, affinity_col, regression_line=True)
     create_heat_scatter_plot(merged_data, ligand_name_1, ligand_name_2, affinity_col, xy_line=True)
 
 

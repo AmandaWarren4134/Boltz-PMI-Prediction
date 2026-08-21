@@ -9,15 +9,15 @@ fi
 # and submits the jobs to the University of Utah HPC.
 
 # Run the pipeline:
-# bash run_pipeline.sh --protein_csv <protein file> --ligand_csv <ligand file> [--use_proteome] [--dry-run]
+# bash run_pipeline.sh --protein_csv <protein file> --ligand_csv <ligand file> [--proteome] [--dry-run]
 
-# --use_proteome: download proteome if no protein file is given
+# --proteome: download proteome if no protein file is given
 # --dry-run: run without submitting jobs
 
 echo "Starting pipeline..."
 
 # Load environment variables - MAKE SURE YOU CHANGED THEM TO YOUR LOCAL VARIABLES in capstone_path_env.sh
-ENV_FILE="capstone_path_env.sh"
+ENV_FILE="environment_variables.sh"
 if [ -f "$ENV_FILE" ]; then
     . "$ENV_FILE"
 fi
@@ -94,11 +94,54 @@ else
 fi
 echo "Ligand CSV found."
 
+# Step 1: Check/convert protein input
+if [[ "$USE_PROTEOME" -eq 0 ]]; then
+    echo "Checking protein input..."
+
+    if [[ ! -f "$PROTEIN_CSV" ]]; then
+        echo "ERROR: Protein input not found at $PROTEIN_CSV"
+        exit 1
+    fi
+
+    # Determine whether the protein input is FASTA or CSV
+    case "${PROTEIN_CSV,,}" in
+        *.fasta|*.fa|*.faa)
+            echo "Protein input detected as FASTA."
+
+            CSV_FILE="${PROTEIN_CSV%.*}.csv"
+
+            if [[ ! -f "$CSV_FILE" ]]; then
+                echo "Converting FASTA → CSV..."
+                python scripts/proteome_fasta_to_csv.py \
+                    --input "$PROTEIN_CSV" \
+                    --output "$CSV_FILE"
+                echo "CSV created at $CSV_FILE"
+            else
+                echo "CSV already exists at $CSV_FILE. Skipping conversion."
+            fi
+
+            PROTEIN_CSV="$CSV_FILE"
+            ;;
+
+        *.csv)
+            echo "Protein input detected as CSV."
+            ;;
+
+        *)
+            echo "ERROR: Protein input must be a CSV or FASTA file (.csv, .fasta, .fa, or .faa)"
+            exit 1
+            ;;
+    esac
+
+    echo "Using protein CSV: $PROTEIN_CSV"
+fi
+
+# Step 2: Proteome mode
 if [[ "$USE_PROTEOME" -eq 1 ]]; then
     echo "Checking protein files..."
 
-    # Step 1: Download proteome
-    if [ ! -f "$FASTA_FILE" ]; then
+    # Download proteome FASTA if needed
+    if [[ ! -f "$FASTA_FILE" ]]; then
         echo "Proteome FASTA missing. Downloading..."
         python scripts/download_proteome_fasta.py \
             --proteome_id UP000005640 \
@@ -107,11 +150,10 @@ if [[ "$USE_PROTEOME" -eq 1 ]]; then
     else
         echo "FASTA already exists. Skipping download."
     fi
-    echo "Step 1 complete."
 
-    # Step 2: Convert FASTA to CSV
-    echo "Running FASTA → CSV conversion..."
-    if [ ! -f "$CSV_FILE" ]; then
+    # Convert FASTA to CSV if needed
+    if [[ ! -f "$CSV_FILE" ]]; then
+        echo "Running FASTA → CSV conversion..."
         python scripts/proteome_fasta_to_csv.py \
             --input "$FASTA_FILE" \
             --output "$CSV_FILE"
@@ -119,9 +161,10 @@ if [[ "$USE_PROTEOME" -eq 1 ]]; then
     else
         echo "CSV already exists. Skipping conversion."
     fi
-    echo "Step 2 complete."
 
     PROTEIN_CSV="$CSV_FILE"
+
+    echo "Using proteome CSV: $PROTEIN_CSV"
 fi
 
 # Step 3: Generate YAMLs

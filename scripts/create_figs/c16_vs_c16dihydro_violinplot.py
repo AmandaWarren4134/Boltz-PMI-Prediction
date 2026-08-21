@@ -168,6 +168,9 @@ def main():
     stat, p_value = wilcoxon_test(aff_1, aff_2)
     print(f"Wilcoxon test statistic: {stat}, p-value: {p_value}")
 
+    # Mann-Whitney U Test (unpaired)
+    mann_stat, mann_p = stats.mannwhitneyu(aff_1,aff_2, alternative='two-sided')
+    print(f"Mann-Whitney U test statistic: {mann_stat}, p-value: {mann_p}")
     statistical_note = f"Wilcoxon test p-value: {p_value:.3e}"
 
     merged_data = pd.concat([data_1, data_2], ignore_index=True)

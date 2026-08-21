@@ -1,0 +1,11 @@
+ligand_id,type,value
+CER_C2_N_acetyl_sphingosine,smiles,CCCCCCCCCCCCC/C=C\[C@H]([C@H](CO)NC(=O)C)O
+CER_C4_N_butyryl_sphingosine,smiles,CCCCCCCCCCCCC/C=C/[C@H]([C@H](CO)NC(=O)CCC)O
+CER_C8_N_octanoyl_sphingosine,smiles,CCCCCCCCCCCCCC=CC(C(CO)NC(=O)CCCCCCC)O
+CER_C10_N_decanoyl_sphingosine,smiles,CCCCCCCCCCCCC/C=C/[C@H]([C@H](CO)NC(=O)CCCCCCCCC)O
+CER_C12_N_lauroyl_sphingosine,smiles,CCCCCCCCCCCCC/C=C/[C@H]([C@H](CO)NC(=O)CCCCCCCCCCC)O
+CER_d18_1_16_0_C16,smiles,CCCCCCCCCCCCCCCC(=O)N[C@@H](CO)[C@@H](/C=C/CCCCCCCCCCCCC)O
+CER_C14_N_myristoyl_sphingosine,smiles,OC[C@]([H])(NC(CCCCCCCCCCCCC)=O)[C@]([H])(O)/C=C/CCCCCCCCCCCCC
+CER_d18_1_18_0_C18,smiles,CCCCCCCCCCCCCCCCCC(=O)N[C@@H](CO)[C@@H](/C=C/CCCCCCCCCCCCC)O
+CER_d18_1_24_0_C24,smiles,CCCCCCCCCCCCCCCCCCCCCCCC(N[C@H](CO)[C@@H](O)/C=C/CCCCCCCCCCCCC)=O
+DHCER_N_nonadecanoyl_sphinganine,smiles,CCCCCCCCCCCCCCCCCCC(=O)N[C@@H](CO)[C@@H](CCCCCCCCCCCCCCC)O
