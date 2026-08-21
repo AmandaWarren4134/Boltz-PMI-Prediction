@@ -10,10 +10,10 @@ test_output
 scripts/prep_files
 scripts/.snakemake
 .venv/
-enrichment_analysis
+enrichment_analysis/
 processed_outputs
 Capstone_TA_Files
-family_enrichment
+family_enrichment/
 logs
 *.log
 outputs

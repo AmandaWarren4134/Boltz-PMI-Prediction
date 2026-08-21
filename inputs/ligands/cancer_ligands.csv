@@ -1,4 +1,0 @@
-ligand_id,type,value
-N-Acetyl-D-Glucosamine,smiles,CC(=O)N[C@@H]1[C@H]([C@@H]([C@H](OC1O)CO)O)O																								
-N-Acetyl-beta-D-GLUCOSAMINE,smiles,CC(=O)N[C@@H]1[C@H]([C@@H]([C@H](O[C@H]1O)CO)O)O																								
-N-Acetylglucosaminitol,smiles,CC(=O)N[C@@H](CO)[C@H]([C@@H]([C@@H](CO)O)O)O
