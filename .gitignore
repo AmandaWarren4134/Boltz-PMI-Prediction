@@ -8,9 +8,9 @@ processed_outputs/
 family_enrichment/
 
 inputs/*
-!inputs/proteins
+!inputs/proteins/
+!inputs/ligands/
 inputs/proteins/*
-!inputs/ligands
 inputs/ligands/*
 !inputs/ligands/example_ligands.csv
 
