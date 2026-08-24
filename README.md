@@ -121,6 +121,82 @@ bash run_pipeline.sh --protein_csv <protein file> --ligand_csv <ligand file> [--
 
 The protein file may be in CSV or FASTA format. The ligand file must be in CSV format. 
 
+## Step 5: Compile Boltz results into CSV
+
+The `parse_output_to_csv.py` script has two modes: process a specific output folder or process all output folders
+
+### Process a specific output folder
+Run this script with Python:
+
+```bash
+python parse_output_to_csv.py --output_folder job_name
+```
+
+Multiple output folders can be supplied:
+
+```bash
+python parse_output_to_csv.py --output_folder job_1 job_2 job_3
+```
+
+### Process all output folders
+
+```bash
+python parse_output_to_csv.py --process_all
+```
+
+This processes every subdirectory found directly under `OUTPUT_DIR`.
+
+### Specify the output CSV name
+When processing a single folder, use --job_name to specify the name used in the output CSV:
+
+```bash
+python parse_output_to_csv.py \
+    --output_folder job_name \
+    --job_name my_analysis
+```
+
+This creates: `PROCESSED_DIR/confidence_predictions_my_analysis.csv`
+
+If multiple folders are processed, the script ignores --job_name and uses each folder's name instead.
+
+### Enable verbose output
+Use --verbose to report missing confidence or affinity files:
+
+```bash
+python parse_output_to_csv.py \
+    --output_folder job_name \
+    --verbose
+```
+
+### Output
+For each successfully processed output folder, the script creates:
+`confidence_predictions_<job_name>.csv`
+The CSV contains the original confidence and affinity fields along with:
+
+- protein
+- ligand
+- micromolar_affinity_pred_value
+- molar_affinity_pred_value
+- neg_log_molar_affinity_pred_value
+
+The derived affinity values are calculated from affinity_pred_value, whcih is assumed to be expressed as log10(micromolar affinity):
+
+```
+micromolar_affinity = 10 ** affinity_pred_value
+molar_affinity      = micromolar_affinity / 1e6
+negative_log_molar  = -log10(molar_affinity)
+```
+
+### Missing Files
+A prediction is included in the CSV only when both required files are present:
+```
+confidence_<stem>_model_0.json
+affinity_<stem>.json
+```
+Missing files are skipped. With --verbose, the script reports the number of missing confidence and affinity files after processing each output folder.
+
 ## Notes
 - Full Boltz job submission requires the HPC/Slurm environment.
 - Local testing is mainly for validating paths, generating YAMLs, and creating figures.
+- Folder names are expected to follow Boltz naming convention `boltz_results_{protein}__{ligand}`.
+- Folders that do not contain both required JSON files are skipped.
