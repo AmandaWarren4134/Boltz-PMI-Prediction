@@ -2,6 +2,14 @@
 
 This guide explains the main steps needed to run the project.
 
+## Step 0: Overall Setup and Storage
+- This repository is meant to be cloned into your home directory
+- You supply your own inputs in csv format and supply their relative or absolute filepaths as arguments to run_pipeline.sh (it doesn't really matter where they are)
+- Boltz outputs are directed to /scratch/rai/vast1/stewartp/boltz_results/<boltz_results_your_job_name>
+- Running parse_outputs_to_csv.py puts the outputs wherever you have configured in environment_variables.sh
+
+In summary, everything should be configurable to your environment, locally or on the HPC.
+
 ---
 
 ## Step 1: Set up the Python environment and install `requirements.txt`

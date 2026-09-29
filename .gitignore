@@ -5,16 +5,19 @@ processed_data/
 figs_and_images/
 plots/
 enrichment_analysis/
-processed_outputs/
 family_enrichment/
 metrics/
+
+processed_outputs/
+!processed_outputs/confidence_predictions_2000_random_c16/
 
 inputs/*
 !inputs/proteins/
 !inputs/ligands/
 inputs/proteins/*
+!inputs/proteins/2000_random.csv
 inputs/ligands/*
-!inputs/ligands/example_ligands.csv
+!inputs/ligands/c16_c16dihydro.csv
 
 scripts/create_figs/
 scripts/__pycache__/
