@@ -8,7 +8,8 @@ enrichment_analysis/
 family_enrichment/
 metrics/
 
-processed_outputs/
+
+processed_outputs/*
 !processed_outputs/confidence_predictions_2000_random_c16/
 
 inputs/*
