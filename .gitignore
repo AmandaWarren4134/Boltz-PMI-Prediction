@@ -3,27 +3,47 @@ logs
 *.log
 processed_data/
 figs_and_images/
-plots/
-enrichment_analysis/
 family_enrichment/
 metrics/
-
+stewartp/
 
 processed_outputs/*
 !processed_outputs/confidence_predictions_2000_random_c16/
+!processed_outputs/confidence_predictions_random_plus_pauls_c16.csv
+!processed_outputs/confidence_predictions_random_plus_paul_c16dihydro.csv
 
 inputs/*
 !inputs/proteins/
 !inputs/ligands/
 inputs/proteins/*
 !inputs/proteins/2000_random.csv
+!inputs/proteins/random_plus_pauls.csv
 inputs/ligands/*
 !inputs/ligands/c16_c16dihydro.csv
 
-scripts/create_figs/
+scripts/create_figs/*
+!scripts/create_figs/probability_vs_iptm.py
+!scripts/create_figs/split_csv_by_ligand.py
+!scripts/create_figs/gseapy_ORA_analysis.py
+!scripts/create_figs/heatscatter_plot.py
+!scripts/create_figs/c16_vs_c16dihydro_violinplot.py
+!scripts/create_figs/add_gene_column.py
+!scripts/create_figs/ceramide_effectors_violinplot.py
 scripts/__pycache__/
 scripts/archive/
 scripts/.venv/
+
+plots/*
+!plots/glcnac_glcnacol_proteome_probability_vs_iptm.svg
+!plots/hue_c16_vs_dihydro_pisa_random_effectors_violinplot.svg
+!plots/c16_probability_vs_ligand_iptm_top_right.csv
+!plots/c16_probability_vs_ligand_iptm.svg
+!plots/regress_heat_scatter_c16_vs_c16dihydro.svg
+!plots/pisa_and_des1_c16_c16dihydro_violinplot.png
+
+enrichment_analysis/*
+!enrichment_analysis/random_plus_paul_c16
+
 
 slurm_scripts/yaml_lists
 slurm_scripts/archive
