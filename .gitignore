@@ -18,6 +18,7 @@ inputs/*
 inputs/proteins/*
 !inputs/proteins/2000_random.csv
 !inputs/proteins/random_plus_pauls.csv
+!inputs/proteins/proteome.csv
 inputs/ligands/*
 !inputs/ligands/c16_c16dihydro.csv
 
